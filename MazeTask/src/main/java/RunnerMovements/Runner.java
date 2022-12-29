@@ -3,9 +3,10 @@ package RunnerMovements;
 import MazeParts.Wall;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
+import java.util.Map.Entry;
 import java.util.Stack;
 
 import FileReader.FileScanner;
@@ -18,7 +19,10 @@ public class Runner implements MazeRunner {
 	private FileScanner fileScanner;
 	private SimpleMaze maze;
 
-	private List<LinkedList<Node>> mazeStructure;;
+	private List<LinkedList<Node>> mazeStructure;
+
+	// new
+	private HashMap<Node, List<Node>> checkPoints = new HashMap<>();
 
 	private int runnerX;
 	private int runnerY;
@@ -48,13 +52,11 @@ public class Runner implements MazeRunner {
 
 	private List<Node> visitedPaths = new ArrayList<>();
 	private Stack<Node> possiblePaths = new Stack<>();
-	private List<String> finalPath = new ArrayList<>();
+	private List<String> finalPath = new LinkedList<>();
 
 	public List<String> getFinalPath() {
 		return finalPath;
 	}
-
-	private int movementCounter = 0;
 
 	public Runner(FileScanner fileScanner) {
 
@@ -81,7 +83,6 @@ public class Runner implements MazeRunner {
 
 		maze = simpleMaze;
 		visitedPaths.add(mazeStructure.get(runnerX).get(runnerY));
-		possiblePaths.push(mazeStructure.get(runnerX).get(runnerY));
 
 		while (true) {
 
@@ -89,34 +90,62 @@ public class Runner implements MazeRunner {
 
 				break;
 			}
+			
+			//UP
 
 			if (this.isNotAWallOrNull(maze.checkUp())) {
-
+				
 				if (!visitedPaths.contains(maze.checkUp())) {
+					
+				///////
 
 					if (this.isNotAWallOrNull(maze.checkRight())) {
 
 						if (!visitedPaths.contains(maze.checkRight())) {
+							
 							possiblePaths.add(maze.checkRight());
+							
+							if(checkPoints.containsKey(mazeStructure.get(runnerX).get(runnerY))) {
+								checkPoints.get(mazeStructure.get(runnerX).get(runnerY)).add(maze.checkRight());
+							} else {
+								checkPoints.put(mazeStructure.get(runnerX).get(runnerY), new ArrayList<Node>());
+								checkPoints.get(mazeStructure.get(runnerX).get(runnerY)).add(maze.checkRight());
+							}
 						}
 					}
 
 					if (this.isNotAWallOrNull(maze.checkDown())) {
 						if (!visitedPaths.contains(maze.checkDown())) {
+
 							possiblePaths.add(maze.checkDown());
+							
+							if(checkPoints.containsKey(mazeStructure.get(runnerX).get(runnerY))) {
+								checkPoints.get(mazeStructure.get(runnerX).get(runnerY)).add(maze.checkDown());
+							} else {
+								checkPoints.put(mazeStructure.get(runnerX).get(runnerY), new ArrayList<Node>());
+								checkPoints.get(mazeStructure.get(runnerX).get(runnerY)).add(maze.checkDown());
+							}
+
 						}
 					}
 
 					if (this.isNotAWallOrNull(maze.checkLeft())) {
 
 						if (!visitedPaths.contains(maze.checkLeft())) {
-							possiblePaths.add(maze.checkLeft());
+							
+						possiblePaths.add(maze.checkLeft());
+						
+						if(checkPoints.containsKey(mazeStructure.get(runnerX).get(runnerY))) {
+							checkPoints.get(mazeStructure.get(runnerX).get(runnerY)).add(maze.checkLeft());
+						} else {
+							checkPoints.put(mazeStructure.get(runnerX).get(runnerY), new ArrayList<Node>());
+							checkPoints.get(mazeStructure.get(runnerX).get(runnerY)).add(maze.checkLeft());
+						}
+
 						}
 					}
 
-
 					maze.moveUp();
-					movementCounter++;
 					finalPath.add("Up");
 					visitedPaths.add(maze.checkUp());
 
@@ -129,25 +158,45 @@ public class Runner implements MazeRunner {
 
 			} 
 			
+			//RIGHT
+			
 			if (this.isNotAWallOrNull(maze.checkRight())) {
+				
 
 				if (!visitedPaths.contains(maze.checkRight())) {
 
 					if (this.isNotAWallOrNull(maze.checkDown())) {
 						if (!visitedPaths.contains(maze.checkDown())) {
+							
 							possiblePaths.add(maze.checkDown());
+							
+							if(checkPoints.containsKey(mazeStructure.get(runnerX).get(runnerY))) {
+								checkPoints.get(mazeStructure.get(runnerX).get(runnerY)).add(maze.checkDown());
+							} else {
+								checkPoints.put(mazeStructure.get(runnerX).get(runnerY), new ArrayList<Node>());
+								checkPoints.get(mazeStructure.get(runnerX).get(runnerY)).add(maze.checkDown());
+							}
 						}
 					}
 
 					if (this.isNotAWallOrNull(maze.checkLeft())) {
 
 						if (!visitedPaths.contains(maze.checkLeft())) {
+						
 							possiblePaths.add(maze.checkLeft());
+							
+							if(checkPoints.containsKey(mazeStructure.get(runnerX).get(runnerY))) {
+								checkPoints.get(mazeStructure.get(runnerX).get(runnerY)).add(maze.checkLeft());
+							} else {
+								checkPoints.put(mazeStructure.get(runnerX).get(runnerY), new ArrayList<Node>());
+								checkPoints.get(mazeStructure.get(runnerX).get(runnerY)).add(maze.checkLeft());
+							}
+
 						}
 					}
 
+					
 					maze.moveRight();
-					movementCounter++;
 					finalPath.add("Right");
 					visitedPaths.add(maze.checkRight());
 
@@ -159,19 +208,27 @@ public class Runner implements MazeRunner {
 
 			} 
 			
+			//DOWN
+			
 			if (this.isNotAWallOrNull(maze.checkDown())) {
+		
 
 				if (!visitedPaths.contains(maze.checkDown())) {
 
 					if (this.isNotAWallOrNull(maze.checkLeft())) {
 
 						if (!visitedPaths.contains(maze.checkLeft())) {
+							
+							
 							possiblePaths.add(maze.checkLeft());
+							
+							checkPoints.put(mazeStructure.get(runnerX).get(runnerY), new ArrayList<Node>());
+							checkPoints.get(mazeStructure.get(runnerX).get(runnerY)).add(maze.checkLeft());
+
 						}
 					}
 
 					maze.moveDown();
-					movementCounter++;
 					finalPath.add("Down");
 					visitedPaths.add(maze.checkDown());
 
@@ -182,13 +239,14 @@ public class Runner implements MazeRunner {
 				}
 
 			} 
+			
+			//LEFT
 
 			if (this.isNotAWallOrNull(maze.checkLeft())) {
 
 				if (!visitedPaths.contains(maze.checkLeft())) {
 
 					maze.moveLeft();
-					movementCounter++;
 					finalPath.add("Left");
 					visitedPaths.add(maze.checkLeft());
 
@@ -197,7 +255,7 @@ public class Runner implements MazeRunner {
 
 					continue;
 				}
-
+ 
 			} 
 
 				if (possiblePaths.isEmpty()) {
@@ -205,23 +263,75 @@ public class Runner implements MazeRunner {
 				} else {
 					Node previousPath = possiblePaths.pop();
 					
-					while(previousPath.getX() != runnerX && previousPath.getY() != runnerY) {
+					//node part of key in checkPoints
+					
+					Node checkPointNode = null;
+					
+					for (Entry<Node, List<Node>> entry: checkPoints.entrySet()) {
+						
+						if(entry.getValue().contains(previousPath)) {
+							
+							checkPointNode = entry.getKey();
+						}
+					}
+					
+					while(true) {
 						
 						
-							String direction = finalPath.remove(finalPath.size() - 1);
+							String direction = ((LinkedList<String>) finalPath).removeLast();
 							
-							switch(direction) {
+							if (direction.equals("Up")) {
+								Node node = maze.checkDown(); 
+								maze.moveDown(); 
+								runnerX = node.getX(); 
+								runnerY = node.getY(); 
+								maze.setX(runnerX); 
+								maze.setY(runnerY);
+							}
 							
-							case "Up": {Node node = maze.checkDown(); maze.moveDown(); runnerX = node.getX(); runnerY = node.getY(); maze.setX(runnerX); maze.setY(runnerY);} 
-							case "Right": {Node node = maze.checkLeft(); maze.moveLeft(); runnerX = node.getX(); runnerY = node.getY(); maze.setX(runnerX); maze.setY(runnerY);} ;
-							case "Down": {Node node = maze.checkUp(); maze.moveUp(); runnerX = node.getX(); runnerY = node.getY(); maze.setX(runnerX); maze.setY(runnerY);} 
-							case "Left": {Node node = maze.checkRight(); maze.moveRight(); runnerX = node.getX(); runnerY = node.getY(); maze.setX(runnerX); maze.setY(runnerY);} 
+							if (direction.equals("Right")) {
+								Node node = maze.checkLeft(); 
+								maze.moveLeft(); 
+								runnerX = node.getX(); 
+								runnerY = node.getY(); 
+								maze.setX(runnerX); 
+								maze.setY(runnerY);
+							}
+							
+							if (direction.equals("Down")) {
+								Node node = maze.checkUp(); 
+								if(node != null) {
+									maze.moveUp(); 
+									runnerX = node.getX(); 
+									runnerY = node.getY(); 
+									maze.setX(runnerX); 
+									maze.setY(runnerY);
+							}
+							}
+								
+							if (direction.equals("Left")) {
+								Node node = maze.checkRight(); 
+								maze.moveRight(); 
+								runnerX = node.getX(); 
+								runnerY = node.getY(); 
+								maze.setX(runnerX); 
+								maze.setY(runnerY);
+								}	
+							
+							
+							if(runnerX == checkPointNode.getX() && runnerY == checkPointNode.getY()){
+								break;
 							}
 						
 					}
-
+					
 					continue;
+
 				}
+				
+				
+				
+				
 	}
 		return finalPath;
 
